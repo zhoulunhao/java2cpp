@@ -147,12 +147,12 @@ std::string stat_func_avg::getPatternValue(db_stat &st, stat_row &sd, db_userpat
 //	stat_win_fac<stat_win_LD *> f(s, 0x101, a);
 //	//f.insert1(0, a);
 //	printf("%s^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n", f.tostring().c_str());
-//	std::cout << f.tostring() << "********************"<< std::endl;
-//	stat_win_LD *w = f.next();
-//	if (w == NULL)
-//	{
-//		printf("w = is NULL\n");
-//	}
+//	//std::cout << f.tostring() << "********************"<< std::endl;
+//	//stat_win_LD *w = f.next();
+////	if (w == NULL)
+////	{
+////		printf("w = is NULL\n");
+////	}
 //	for (stat_win_LD *w = NULL; NULL != (w = f.next());)
 //	{
 //		std::cout << w->dV  << "&&&&&&&&&&&&&&&&&&&&"<< w->lV << std::endl;

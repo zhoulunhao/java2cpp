@@ -54,33 +54,33 @@ std::string stat_func_count_equals::type(db_stat &st)
 
 
 std::string  stat_func_count_equals::get(std::string &data, db_stat &stat, int cur_minute, std::string &cur_value)
+{
+	char buf[100];
+	std::string value = "";
+	if (data.empty() || cur_value.empty())
+		return 0;
+	int min_win_time = stat.min_win_time(cur_minute);
+	long vc = 0;
+	stat_win_fac<stat_win_LS *> fac(data, min_win_time,
+		stat_win_LS::_fac);
+	stat_win_LS *w = fac.next();
+	for (; w != NULL; w = fac.next())
 	{
-		char buf[10];
-		std::string value = "";
-		if (data.empty() || cur_value.empty())
-			return 0;
-		int min_win_time = stat.min_win_time(cur_minute);
-		long vc = 0;
-		stat_win_fac<stat_win_LS *> fac(data, min_win_time,
-			stat_win_LS::_fac);
-		stat_win_LS *w = fac.next();
-		for (; w != NULL; w = fac.next())
+		if (w->sV == cur_value)
 		{
-			if (w->sV == cur_value)
-			{
-				vc += w->lV;
-			}
-			
+			vc += w->lV;
 		}
-		sprintf(buf, "%.2f", (double)vc);
-		return buf;
+		
 	}
-	
+	sprintf(buf, "%.2f", (double)vc);
+	return buf;
+}
+
 
 
 std::map<std::string, std::string> stat_func_count_equals::getAll(std::string &data, db_stat &stat, int cur_minute)
 	{
-		char buf[10];
+		char buf[100];
 		std::map<std::string, std::string> a;
 		if (data.empty())
 			return a;

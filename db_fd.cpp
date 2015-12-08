@@ -22,7 +22,7 @@ std::string db_fd::toString()
 
 std::string db_fd::toStringL()
 {
-	char buf[10];
+	char buf[100];
 	sprintf(buf, "%.2f", (double)dblen);
 	std::string s = buf;
 	return "[" + this->name + "," + fd_name + "," + srcid + "," + type + "(" + s + ")]";

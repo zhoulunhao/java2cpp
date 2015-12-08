@@ -72,7 +72,7 @@ std::string stat_func_min::set(std::string &d, db_stat &stat, int cur_minute, st
 
 std::string stat_func_min::get(std::string &data, db_stat &stat, int cur_minute, std::string cur_value)
 	{
-		char buf[10];
+		char buf[100];
 		if (data.empty())
 			return "";
 		int min_win_time = stat.min_win_time(cur_minute);

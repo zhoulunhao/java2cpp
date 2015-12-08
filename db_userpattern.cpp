@@ -73,8 +73,7 @@ db_userpattern db_userpattern::load_from(bin_stream &b)
 
 void db_userpattern::save_to(bin_stream &bs)
 {
-	bs.save(userid);
-	bs.save(pattern_s);
+	bs.save(userid).save(pattern_s);
 }
 
 std::map<int, std::list<Pattern> > db_userpattern::userPattern2Map(std::string &us)

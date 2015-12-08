@@ -30,13 +30,13 @@ stat_func_bindist_rang::~stat_func_bindist_rang()
 	delete[] _name;
 }
 std::string stat_func_bindist_rang::type(db_stat &st)
-	{
-		return std::string("DOUBLE");
-	}
+{
+	return std::string("DOUBLE");
+}
 std::string stat_func_bindist_rang::name()
-	{
-		return std::string("RANGE_BIN_DIST");
-	}
+{
+	return std::string("RANGE_BIN_DIST");
+}
 std::string stat_func_bindist_rang::set(std::string &d, db_stat &stat, int cur_minute, std::string &cur_value)
 {
 
@@ -45,16 +45,18 @@ std::string stat_func_bindist_rang::set(std::string &d, db_stat &stat, int cur_m
 	int index = stat.range_index(atoi(cur_value.c_str()));
 	if (index < 0)
 		return d;
-	char buf[10];
+	char buf[100];
 	sprintf(buf,"%.2f", (double)index);
 	std::string mm = buf;
 	stat_func_bindist r;
 	return r.set(d, stat, cur_minute, mm);
-}//set())
+}
+
+
 std::string stat_func_bindist_rang::get(std::string &data, db_stat &stat, int cur_minute, std::string &cur_value)
 {
 
-	char buf[10];
+	char buf[100];
 	if (data.empty() || cur_value.empty())
 		return std::string("0");
 	int index = stat.range_index(atoi(cur_value.c_str()));
@@ -101,3 +103,10 @@ std::string stat_func_bindist_rang::getPatternValue(db_stat& st, stat_row &sd, d
 		return 0;
 	}
 
+
+//
+//int main()
+//{
+//	
+//	return 0;
+//}

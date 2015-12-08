@@ -2,17 +2,28 @@
 #include "stat_win_time.h"
 #include <sys/time.h>
 #include <time.h>
+#include <stdio.h>
+
+/*
+*
+*	mktime 从一个struct tm 的结构体返回一个距离1970年1月1日的秒数
+*	struct timeval tv;
+*	gettimeofday(&tv,NULL); 可以返回微秒
+*/
+
 int getbasetime()
 {
+	//2013 1. 1 0.0.0
 	time_t ts;
 	struct tm t;
-	t.tm_year = 2013;
-	t.tm_mon = 1;
+	t.tm_year = 113;
+	t.tm_mon = 0;
 	t.tm_mday = 1;
 	t.tm_hour = 0;
 	t.tm_min = 0;
 	t.tm_sec = 0;
 	ts = mktime(&t);
+	
 	return ts ;
 }
 
@@ -20,22 +31,30 @@ int getbasetime()
 int gettmoffset()
 {
 	struct timeval tv;
-	 gettimeofday(&tv,NULL);
-	//return tv.tv_sec;   //返回秒
-	return tv.tv_usec;    //返回微秒
+	gettimeofday(&tv,NULL);
+	return tv.tv_sec;   //返回秒
+	//return tv.tv_usec;    //返回微秒
 }
 
 
 std::vector<stat_win_time::win_time_base*> stat_win_time::unit;
 
-int stat_win_time::the_base_time = getbasetime() / 1000 / 60;
-int stat_win_time::tm_offset = gettmoffset() / 1000 / 60;
+int stat_win_time::the_base_time = getbasetime() / 60;
+int stat_win_time::tm_offset = gettmoffset() / 60;
 
 int stat_win_time::Base_time()
 {
+	printf("the_base_time = %d\n",the_base_time);
 	return the_base_time;
 }
 
+
+stat_win_time::stat_win_time()
+{
+}
+stat_win_time::~stat_win_time()
+{
+}
 
 int stat_win_time::dec_win_when_set(int tm_unit)
 {
@@ -59,6 +78,20 @@ void stat_win_time::init_unit()
 	unit.push_back(new session());
 }
 
+
+void stat_win_time::destory_unit()
+{
+	if(unit.size() == 0)
+		return ;
+	else 
+	{
+		std::vector<stat_win_time::win_time_base*>::iterator it = unit.begin();
+		for(;it != unit.end();it++)
+		{
+			delete (*it);
+		}
+	}
+}
 int stat_win_time::cur_win_time(int tm_unit,int txn_minute)
 {
 	if(tm_unit >=(int) unit.size())
@@ -100,10 +133,13 @@ stat_win_time::fixed::fixed() :unit_minute(0)
 {
 }
 
+
 stat_win_time::fixed::fixed(int unit_minute) : unit_minute(unit_minute)
 {
 	
 }
+
+
 int stat_win_time::fixed::cur_win_time(int txnMinute)
 {
 	return txnMinute-txnMinute%unit_minute;
@@ -144,8 +180,7 @@ int stat_win_time::week::num_minute()
 
 int stat_win_time::week::cur_win_time(int txnMinute)
 {
-	return (txnMinute + stat_win_time::tm_offset - 4 * 24 * 60) / (7 * 24 * 60) * (7 * 24 * 60)
-		- stat_win_time::tm_offset + 4 * 24 * 60;
+	return (txnMinute + stat_win_time::tm_offset - 4 * 24 * 60) / (7 * 24 * 60) * (7 * 24 * 60)- stat_win_time::tm_offset + 4 * 24 * 60;
 }
 
 int stat_win_time::week::min_win_time(int numUnit, int txnMinute)
@@ -162,16 +197,16 @@ int stat_win_time::month::cur_win_time(int txnMinute)
 {	
 	long long  count;
 	time_t lt;
-	count = txnMinute * 1000 * 60;
+	count = txnMinute  * 60;
 	lt = (time_t)count;
 	struct tm *ts = localtime(&lt);
-	ts->tm_year = ts->tm_year;
+	ts->tm_year = ts->tm_year-1900;
 	ts->tm_mon = 0;
 	ts->tm_mday = 1;
 	ts->tm_hour = 0;
 	ts->tm_min = -tm_offset;
 	ts->tm_sec = 0;
-	return (int)mktime(ts)/1000/60;
+	return (int)mktime(ts)/60;
 }
 
 
@@ -179,16 +214,16 @@ int stat_win_time::month::min_win_time(int numUnit, int txnMinute)
 {
 	long long  count;
 	time_t lt;
-	count = txnMinute * 1000 * 60;
+	count = txnMinute  * 60;
 	lt = (time_t)count;
 	struct tm *ts = localtime(&lt);
-	ts->tm_year = ts->tm_year;
+	ts->tm_year = ts->tm_year-1900;
 	ts->tm_mon -= numUnit;
 	ts->tm_mday = 1;
 	ts->tm_hour = 0;
 	ts->tm_min = -tm_offset;
 	ts->tm_sec = 0;
-	return (int)mktime(ts)/1000/60;
+	return (int)mktime(ts)/60;
 }
 
 int	stat_win_time::year::num_minute()
@@ -199,31 +234,31 @@ int stat_win_time::year::cur_win_time(int txnMinute)
 {
 	long long  count;
 	time_t lt;
-	count = txnMinute * 1000 * 60;
+	count = txnMinute  * 60;
 	lt = (time_t)count;
 	struct tm *ts = localtime(&lt);
-	ts->tm_year = ts->tm_year;
+	ts->tm_year = ts->tm_year-1900;
 	ts->tm_mon = 0;
 	ts->tm_mday = 1;
 	ts->tm_hour = 0;
 	ts->tm_min = -tm_offset;
 	ts->tm_sec = 0;
-	return (int)mktime(ts)/1000/60;
+	return (int)mktime(ts)/60;
 }
 int stat_win_time::year::min_win_time(int numUnit, int txnMinute)
 {
 	long long  count;
 	time_t lt;
-	count = txnMinute * 1000 * 60;
+	count = txnMinute  * 60;
 	lt = (time_t)count;
 	struct tm *ts = localtime(&lt);
-	ts->tm_year = ts->tm_year-numUnit;
+	ts->tm_year = ts->tm_year-numUnit-1900;
 	ts->tm_mon = 0;
 	ts->tm_mday = 1;
 	ts->tm_hour = 0;
 	ts->tm_min = -tm_offset;
 	ts->tm_sec = 0;
-	return (int)mktime(ts)/1000/60;
+	return (int)mktime(ts)/60;
 }
 
 int	stat_win_time::session::num_minute()

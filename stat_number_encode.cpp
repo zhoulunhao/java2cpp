@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <iostream>
 
 void  stat_number_encode::init_m_codec()
 {
@@ -15,10 +16,10 @@ void  stat_number_encode::init_m_codec()
 
 codec * stat_number_encode::m_codec = new b64();
 int stat_number_encode::use_base64 = tmsapp::get_config("tms.stat.base64", 0);
-short b16::encode16[16] = { 0 };
+unsigned short b16::encode16[16] = { 0 };
 int b16::decode16[128] = { 0 };
 
-short b64::encode64[64] = { 0 };
+unsigned short b64::encode64[64] = { 0 };
 int b64::decode64[128] = { 0 };
 
 stat_number_encode::stat_number_encode()
@@ -103,7 +104,7 @@ long codec::decode_long(std::string &s)
 }
 
 
-void b64::init(short *encode64, int* decode64)
+void b64::init(unsigned short *encode64, int* decode64)
 {
 	int i = 0;
 	for (int j = 'A'; j <= 'Z'; j++)
@@ -134,6 +135,7 @@ void b64::init(short *encode64, int* decode64)
 
 std::string b64::encode(int i)
 {
+	printf("i = %d  %s  %d\n",i,__func__,__LINE__);
 	char cc[16];
 	int k = 0;
 	do
@@ -147,6 +149,7 @@ std::string b64::encode(int i)
 }
 std::string b64::encode(long i)
 {
+	printf("i = %ld  %s  %d\n",i,__func__,__LINE__);
 	char cc[16];
 	int k = 0;
 	do
@@ -160,6 +163,8 @@ std::string b64::encode(long i)
 }
 int b64::decode_int(std::string &s)
 {
+	std::cout << s << '\t'<< __func__  << '\t'<< __LINE__ << std::endl;
+	
 	int ret = 0;
 	for (int i = 0, len = s.length(); i < len; i++)
 		ret |= decode64[(int)s.at(i)] << (i * 6);
@@ -168,6 +173,7 @@ int b64::decode_int(std::string &s)
 }
 long b64::decode_long(std::string &s)
 {
+	std::cout << s << '\t'<< __func__  << '\t'<< __LINE__ << std::endl;
 	long ret = 0;
 	for (int i = 0, len = s.length(); i < len; i++)
 		ret |= ((long)decode64[(int)s.at(i)]) << (i * 6);
@@ -175,7 +181,7 @@ long b64::decode_long(std::string &s)
 	return ret;
 }
 
-void b16::init(short *encode16, int* decode16)
+void b16::init(unsigned short *encode16, int* decode16)
 {
 	int i = 0;
 	for (int j = '0'; j <= '9'; j++)
@@ -192,6 +198,7 @@ void b16::init(short *encode16, int* decode16)
 
 std::string b16::encode(int i)
 {
+	printf("i = %d  %s  %d\n",i,__func__,__LINE__);
 	char cc[8];
 	int k = 0;
 	do
@@ -206,6 +213,7 @@ std::string b16::encode(int i)
 
 std::string b16::encode(long i)
 {
+	printf("i = %ld  %s  %d\n",i,__func__,__LINE__);
 	char cc[16] ;
 	int k = 0;
 	do
@@ -220,6 +228,7 @@ std::string b16::encode(long i)
 }
 int b16::decode_int(std::string &s)
 {
+	std::cout << s << '\t'<< __func__  << '\t'<< __LINE__ << std::endl;
 	int ret = 0;
 	for (int i = 0, len = s.length(); i < len; i++)
 		ret |= decode16[(int)s.at(i)] << (i << 2);
@@ -229,6 +238,7 @@ int b16::decode_int(std::string &s)
 
 long  b16::decode_long(std::string &s)
 {
+	std::cout << s << '\t'<< __func__  << '\t'<< __LINE__ << std::endl;
 	long ret = 0;
 	for (int i = 0, len = s.length(); i < len; i++)
 		ret |= ((long)decode16[(int)s.at(i)]) << (i << 2);
@@ -238,13 +248,15 @@ long  b16::decode_long(std::string &s)
 
 std::string b10::encode(int i)
 {
-	char buf[10];
+	printf("i = %d  %s  %d\n",i,__func__,__LINE__);
+	char buf[100];
 	sprintf(buf, "%.2f", (double)i);
 	return buf;
 }
 std::string b10::encode(long i)
 {
-	char buf[10];
+	printf("i = %ld  %s  %d\n",i,__func__,__LINE__);
+	char buf[100];
 	sprintf(buf, "%.2f",(double)i);
 	return buf;
 }

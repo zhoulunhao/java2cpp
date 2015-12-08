@@ -76,7 +76,7 @@ std::string stat_func_sum::set(std::string &d, db_stat &stat, int cur_minute, st
 
 std::string  stat_func_sum::get(std::string &data, db_stat &stat, int cur_minute, std::string cur_value)
 	{
-		char buf[10];
+		char buf[100];
 		if (data.empty())
 			return "";
 
@@ -124,7 +124,6 @@ std::string stat_func_sum::getPatternValue(db_stat &st, stat_row& sd, db_userpat
 			return "";
 
 		std::list<Pattern>::iterator it = p_l.begin();
-
 		for (; it != p_l.end();++it)
 		{
 			// 交易时间在行为习惯的有效期内

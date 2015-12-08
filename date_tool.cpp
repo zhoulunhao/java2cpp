@@ -156,10 +156,10 @@ std::string date_tool::format(struct tm *ts,const std::string &formatStr)
 long date_tool::tm_date(long d)
 {
 	d = raw_offset + d;
-	return d / (1000 * 24 * 60 * 60)*(1000 * 24 * 60 * 60) - raw_offset;
+	return d / ( 24 * 60 * 60)*( 24 * 60 * 60) - raw_offset;
 }
 long date_tool::tm_time(long d)
 {
-	return(d - raw_offset) - tm_date(d);
+	return (d - raw_offset) - tm_date(d);
 
 }

@@ -2,7 +2,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
-
+#include "stat_number_encode.h"
 
 stat_row::stat_row()
 {
@@ -44,7 +44,7 @@ bool stat_row::is_clear()
 }
 std::string stat_row::toString()
 {
-	char buf[10];
+	char buf[100];
 	sprintf(buf, "%.2f",(double) m_stat_id);
 	return "[" + m_param + buf + "|" + ":" + m_value + "]";
 }
@@ -106,29 +106,27 @@ void stat_row::set_value(std::string v)
 //}
 void stat_row::to_net_request(std::string &sb)
 {
-	char buf[10];
-	char buf1[10];
-	sprintf(buf1, "%.2f", (double)m_row_type);
+
 	
-	sb.append(buf).append("\t");
+	sb.append(stat_number_encode::encode(m_row_type)).append("\t");
 	sb.append(m_param).append("\t");
-	sprintf(buf1, "%.2f", (double)m_stat_id);;
-	sb.append(buf1);
+	sb.append(stat_number_encode::encode(m_stat_id));
 	if (is_query() || is_clear())
 		sb.append("\n");
 	else
 	{
-		char buf2[10];
 		sb.append("\t");
-		sprintf(buf2, "%.2f", (double)m_txn_time);
-		sb.append(buf2).append("\t");
+		sb.append(stat_number_encode::encode(m_txn_time)).append("\t");
 		if (m_txn_val.empty())
 			sb.append("");
 		else
-			sb.append("'").append(m_txn_val).append("'").append("\n");
+			sb.append("'").append(m_txn_val).append("'");
+		sb.append("\n");
 	}
 
 }
+
+
 //stat_row stat_row::from_net_request(std::string &line, counter &c)
 //{
 //	stat_row row;
@@ -148,48 +146,58 @@ void stat_row::to_net_request(std::string &sb)
 //	}
 //	return row;
 //}
+int indexof(std::string &cc, int p, char ch)
+{
+	int count = 0;
+	const char *s = cc.c_str() + p;
+	while (*s++ != '\0')
+	{
+		count++;
+		if (*s == ch)
+			return p + count;
+	}
+	return 100;
+}
 
 
 int stat_row::read_stat_type(std::string &line, int from)
 {
-	int p = line.find(item_sp, from);
+	int p = indexof(line,from ,item_sp);
 	if (p <= from)
 		std::cout << "分析统计元素'stat_row_type'出错" << std::endl;
-	m_row_type = atoi(line.substr(from, p-from).c_str());
+	m_row_type = stat_number_encode::decode_int(line.substr(from, p-from));
 	return p + 1;
 }
 int stat_row::read_stat_id(std::string &line, int from)
 {
-	int p = line.find(item_sp, from);
+	int p = indexof(line,from,item_sp);
 	if (p < 0)
 		p = line.length();
 	if (p <= from)
 		std::cout << "分析统计元素'stat_row_type'出错" << std::endl;
-	m_stat_id = atoi(line.substr(from, p-from).c_str());
+	m_stat_id = stat_number_encode::decode_int(line.substr(from, p-from));
 	return p + 1;
 
 }
 int stat_row::read_stat_param(std::string &line, int from)
 {
-	int p = line.find(item_sp, from);
+	int p = indexof(line,from,item_sp);
 	if (p < 0)
 		p = line.length();
 	if (p <= from)
 		std::cout << "分析统计元素'stat_row_type'出错" << std::endl;
-	m_param = atoi(line.substr(from, p-from).c_str());
+	m_param = line.substr(from, p-from);
 	return p + 1;
 }
 
 
 int stat_row::read_stat_value(std::string &line, int from)
 {
-	int p = line.find(item_sp, from);
+	int p =indexof(line,from,item_sp);
 	if (p < 0)
 		p = line.length();
 	if (p <= from)
 		std::cout << "分析统计元素'stat_row_type'出错" << std::endl;
-
-
 	set_value(line.substr(from, p-from));
 	return p + 1;
 }
@@ -197,7 +205,7 @@ int stat_row::read_stat_value(std::string &line, int from)
 
 int stat_row::read_txn_value(std::string &line, int from)
 {
-	int p = line.find(item_sp, from);
+	int p = indexof(line,from,item_sp);
 	if (p < 0)
 		p = line.length();
 	if (p <= from)
@@ -213,18 +221,17 @@ int stat_row::read_txn_value(std::string &line, int from)
 		m_txn_val = v.substr(1, v.length() - 2);
 	}
 		
-	
 	return p + 1;
 }
 
 int stat_row::read_stat_txn_time(std::string &line, int from)
 {
-	int p = line.find(item_sp, from);
+	int p = indexof(line,from,item_sp);
 	if (p < 0)
 		p = line.length();
 	if (p <= from)
 		std::cout << "分析统计元素'stat_row_type'出错" << std::endl;
-	m_txn_time = (long)(atoi(line.substr(from, p-from).c_str()));
+	m_txn_time = stat_number_encode::decode_long(line.substr(from, p-from));
 	return p + 1;
 }
 //void stat_row::set_query_counter(counter &queryCounter)

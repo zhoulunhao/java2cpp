@@ -52,8 +52,7 @@ std::string stat_func_bindist::set(std::string &d, db_stat &stat, int cur_minute
 	std::string value = cur_value;
 	if(stat_win_LS::_fac == NULL)
 		printf("LS::_fac = NULL\n");
-	stat_win_fac<stat_win_LS *> fac(d, min_win_time, stat_win_LS::_fac,stat
-		.dec_win_when_set());
+	stat_win_fac<stat_win_LS *> fac(d, min_win_time, stat_win_LS::_fac,stat.dec_win_when_set());
 
 
 	stat_win_fac<stat_win_LS *>::FI fi = fac.find_r(cur_win_time);
@@ -79,7 +78,6 @@ std::string stat_func_bindist::set(std::string &d, db_stat &stat, int cur_minute
 	{
 		fac.insert1(fac.index1() +1, new stat_win_LS(cur_win_time, 1, value));
 	}
-	//return fi.toString();
 	return min_len_string(fac);
 }
 
@@ -103,7 +101,7 @@ std::string stat_func_bindist::min_len_string(stat_win_fac<stat_win_LS *> &fac)
 }
 std::string  stat_func_bindist::get(std::string &data, db_stat &stat, int cur_minute, std::string &cur_value)
 {
-	char buf[10];
+	char buf[100];
 	std::string value = "";
 	sprintf(buf, "%.2f",(double)0);
 	if (data.empty() || cur_value.empty())
@@ -140,7 +138,7 @@ bool stat_func_bindist::need_curval_when_set()  const
 std::map<std::string, std::string>  stat_func_bindist::getAll(std::string &data, db_stat &stat, int cur_minute)
 {
 	std::map<std::string, std::string> a;
-	char buf[10];
+	char buf[100];
 	if (data.empty())
 		return a;
 	int min_win_time = stat.min_win_time(cur_minute);
@@ -191,22 +189,24 @@ int main()
 	stat_func_bindist *at = new stat_func_bindist;
 	b64::init(b64::encode64,b64::decode64);
 	b16::init(b16::encode16, b16::decode16);
-		stat_number_encode::init_m_codec();
+		//stat_number_encode::init_m_codec();
 	std::cout << at->name() << std::endl;
 	std::cout << at->type(st) << std::endl;
-	std::string d = "4400:1444320:5:2|7878:8788788:4:1|";
-		stat_win_LD * a = new stat_win_LD;
-	stat_win_fac<stat_win_LD *> f(d, 0x101, a);
-	f.win_items->push_back(a);
-	int cur_minute = 324444;
+	std::string d = "4400:1444320:5:2|7878:2788788:4:1|";
+	//stat_win_LD * a = new stat_win_LD;
+	//stat_win_fac<stat_win_LD *> f(d, 0x101, a);
+	//f.win_items->push_back(a);
+	int cur_minute = 32444444;
 	stat_win_time::init_unit();
 	printf("unit.size() = %d\n",(int)stat_win_time::unit.size());
 	std::string cur_value = "4367432";
+		
+	
 	std::string s = at->set(d, st, cur_minute, cur_value);
 	std::cout << s << std::endl;
-	std::string data = "253263";
-	 s = at->get(data, st,cur_minute, cur_value);
-	std::cout << data << std::endl;
+
+	s = at->get(d, st,cur_minute, cur_value);
+	std::cout << d << std::endl;
 	
 	delete at;
 	return 0;

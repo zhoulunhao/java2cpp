@@ -8,8 +8,9 @@
 #include "stat_number_encode.h"
 #include <assert.h>
 #include <iostream>
-
+#include <string.h>
 #include <stdio.h>
+#include "java2cpp_log.h"
 #include <iterator>
 class stat_win_base;
 
@@ -36,7 +37,7 @@ public:
 	{
 		if(win_items->size()==0)
 			delete win_items;
-		else
+		else 
 		{
 			typename std::list<T>::iterator it = win_items->begin();
 			for(;it!=win_items->end();++it)
@@ -68,7 +69,7 @@ public:
 		{ 
 			if ((*it) == NULL)
 				break;
-			//空指针怎么搞？？？
+			//绌烘寚閽堟€庝箞鎼烇紵锛燂紵
 			printf("%d\n", (*it)->win_time);
 			(*it)->win_time -= dec;
 		}
@@ -89,13 +90,13 @@ public:
 			if (*s == ch)
 				return p + count;
 		}
-		return 100;
+		return -1;
 	}
 
 
 	int skip_r(std::string &cc, int p, char ch)
 	{
-		std::string c = cc.substr(0, p);
+		std::string c = cc.substr(p, cc.length()-p);
 		return c.find_last_of(ch);
 	}
 
@@ -103,7 +104,6 @@ public:
 	void init_items(std::string &cc, int min_valid_time)
 	{
 		//std::list<T> listt(new std::list<T>);/*= win_items*/;
-		/*win_items.push_front(fact);*/
 		int p = 0;
 		int i = 0;
 		int time = 0;
@@ -111,8 +111,9 @@ public:
 		for (; p < len;)
 		{
 			i = p;
+			//鍒嗗壊鈥?鈥?
 			p = skip_(cc, i, item_split);
-			printf("p = %d\n", p);
+			printf("p = %d   %s   %d\n", p,__FILE__,__LINE__);
 			time = stat_number_encode::decode_int(cc.substr(i, p-i)) + basetime;
 			printf("%d\n", stat_number_encode::decode_int(cc.substr(i, p-i)));
 			if (i == 0)
@@ -130,25 +131,18 @@ public:
 		{
 			printf("p = %d\n", p);
 			i = skip_(cc, p, win_split);
-			
 			int  ted = p == 0 ? 0 : basetime;
 			printf("win_items.size() = %d\n",(int)win_items->size());
-			win_items->push_back((T)fact->from(items(cc, p, i), /*(stat_win_fac<stat_win_base*>) *this,*/ ted));
-			//it = win_items->erase(it);
+			win_items->push_back((T)fact->from(items(cc, p, i), (stat_win_fac<stat_win_base*>*) this, ted));
+			
 			printf("win_items.size() = %d\n",(int)win_items->size());
 			p = i + 1;
 		}
 
 		printf("fact->win_time = %d\n", fact->win_time);
 		printf("win_items.size() = %d\n", (int)win_items->size());
-		if (win_items->empty())
-		{
-			basetime = 0;
-		}
-		else
-		{
-			basetime = win_items->front()->win_time;
-		}
+		basetime = win_items->empty() ? 0:win_items->front()->win_time;
+
 	}
 
 	std::string * items(std::string &cc,int s, int e)
@@ -168,7 +162,7 @@ public:
 		for (int i = 0; i < len; i++)
 		{
 			str[i] = ret[i];
-			std::cout << str[i] << std::endl;
+			std::cout << "str[i] = " << str[i] << std::endl;
 		}
 		return str;
 	}
@@ -176,9 +170,9 @@ public:
 	class FI
 	{
 	public:
-		int flag;// -1 业务时间早于最早的，0，业务时间等于某窗口，1业务时间大于最大窗口或无窗口
+		int flag;// -1 涓氬姟鏃堕棿鏃╀簬鏈€鏃╃殑锛?锛屼笟鍔℃椂闂寸瓑浜庢煇绐楀彛锛?涓氬姟鏃堕棿澶т簬鏈€澶х獥鍙ｆ垨鏃犵獥鍙?
 		T e;
-		FI(int flag, T &e)
+		FI(int flag, T e)
 		{
 			flag = flag;
 			e = e;
@@ -192,9 +186,13 @@ public:
 	FI find_r(int cur_win_time)
 	{
 		T n = next_r();
+		if(n == NULL)
+		{
+			printf("%s 	%d  next_r() 返回值错误\n ",__FILE__, __LINE__);
+		}
 		if (n->win_time < cur_win_time)
 			return FI(1);
-		////否则，查找最后一个相等的时间窗
+		////鍚﹀垯锛屾煡鎵炬渶鍚庝竴涓浉绛夌殑鏃堕棿绐?
 		for (; n!=NULL ; n = next_r())
 		{
 			if (n->win_time == cur_win_time)
@@ -205,46 +203,19 @@ public:
 				return FI(-1);
 			}
 		}
-		// 没有找到，当前时间不在所有的时间窗中，返回第一个
+		// 娌℃湁鎵惧埌锛屽綋鍓嶆椂闂翠笉鍦ㄦ墍鏈夌殑鏃堕棿绐椾腑锛岃繑鍥炵涓€涓?
 		return FI(-1);
 	}
 
-//	T get(std::list<T> *a)
-//	{
-//		
-//		typename std::list<T>::iterator it = a->begin();
-//		int i = 0;
-//		pos+=1;
-//		for (; i < pos&&it != a->end();i++, ++it)
-//		{
-//		}
-//		if (i == pos)
-//		{
-//			return *it;
-//		}
-//		return NULL;
-//	}
 
-//	T get2(std::list<T> *a)
-//	{
-//		
-//		typename std::list<T>::iterator it = a->begin();
-//		int i = 0;
-//		pos_r -= 1;
-//		for (; i < pos_r&& it != a->end(); i++, ++it)
-//		{
-//		}
-//		if (i == pos_r)
-//		{
-//			return *it;
-//		}
-//		return NULL;
-//	}
 	T next()
 	{
 		printf("pos = %d  (win_items).size() = %d\n  ", pos, (int)(win_items)->size());
 		if (pos >= (int)(win_items)->size())
+		{
+			printf("%s 	%d  pos 值错误\n ",__FILE__, __LINE__);
 			return NULL;
+		}
 		typename std::list<T>::iterator it = (win_items)->begin();
 		std::advance(it,pos++);
 		return (*it);
@@ -254,7 +225,11 @@ public:
 	T next_r()
 	{
 		if (pos_r < 0 || pos_r >= (int)(win_items)->size())
+		{
+			printf("%s 	%d  pos_r 值错误\n ",__FILE__, __LINE__);
 			return NULL;
+		}	
+		
 		typename std::list<T>::iterator it = win_items->begin();
 		std::advance(it,pos_r--);
 		return (*it);
@@ -269,7 +244,7 @@ public:
 			return "";
 		if (win_items->front() == NULL)
 			return "";
-		printf("win_items.front().win_time = %d\n", (win_items)->front()->win_time);
+		printf("win_items.front().win_time = %d   %s   %d\n", (win_items)->front()->win_time,__FILE__,__LINE__);
 		(win_items)->front()->appendTo(&buf, 0);
 		typename std::list<T>::iterator it = (win_items)->begin();
 		printf("(win_items).size() = %d\n",(int)(win_items)->size());
@@ -279,9 +254,13 @@ public:
 			if (*it == NULL)
 				break;
 			(*(it))->appendTo(&buf, this->basetime);
-			printf("this->basetime = %d\n", this->basetime);
+			printf("this->basetime = %d   %s   %d\n", this->basetime,__FILE__,__LINE__);
 		}
-		return buf;
+		char buf1[512] = {0};
+		strcpy(buf1,buf);
+		delete[] buf;
+		buf = NULL;
+		return buf1;
 	}
 
 	int base_time1()
@@ -302,8 +281,9 @@ public:
 	void insert1(int i, T e)
 	{
 		typename std::list<T>::iterator it = (win_items)->begin();
-		for (int im = 0; it != (win_items)->end() && im < i; im++)
-			it++;
+//		for (int im = 0; it != (win_items)->end() && im < i; im++)
+//			it++;
+		std::advance(it,i);
 		(win_items)->insert(it, e);
 		if (e->win_time < basetime)
 			basetime = e->win_time;
@@ -318,26 +298,20 @@ public:
 	{
 		if (rindex < 0)
 			return;
-		std::list<T> windows_items;
 		typename std::list<T>::iterator it = (win_items)->begin();
-		for (int i = 0; (i < rindex + 1) && it != (win_items)->end(); i++, it++)
-		{
-		}
-		for (; it != (win_items)->end(); it++)
-			windows_items.push_back(*it);
-
-		this->pos_r = windows_items.size() - 1;
+		std::advance(it,rindex+1);
+		win_items->assign(it,win_items->end());
+		this->pos_r = win_items->size() - 1;
 		this->pos = 0;
-		if (windows_items.size() > 0)
-			this->basetime = windows_items.front()->win_time;
+		if (win_items->size() > 0)
+			this->basetime = win_items->front()->win_time;
 	}
 	int size()
 	{
 		return (win_items)->size();
 	}
 };
-//template<typename T>
-//std::list<T> *stat_win_fac<T>::win_items = new std::list<T>(32) ;
+
 
 
 #endif // !_STAT_WIN_FAC_H

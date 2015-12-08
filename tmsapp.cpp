@@ -5,7 +5,7 @@
 
 
 int tmsapp::i = 0;
-int tmsapp::key = 0;
+std::string tmsapp::key = "";
 std::string tmsapp::s = "";
 std::string tmsapp::defaultValue = "";
 bool tmsapp::print_console = false;
@@ -72,6 +72,8 @@ static void set_config(std::string &str, std::string &s);
 }
  int tmsapp::get_config(const std::string &key, int defaultValue, bool print_console)
 {
+//	char buf[100];
+//	sprintf(buf,"%d",defaultValue);
 	std::string v = get_config(key, "" + defaultValue, print_console);
 	return atoi(v.c_str());
 

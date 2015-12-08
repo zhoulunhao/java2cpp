@@ -98,7 +98,7 @@ stat_func_count_uniq::~stat_func_count_uniq()
 
 	std::string stat_func_count_uniq::get(std::string &data, db_stat &stat, int cur_minute, std::string cur_value)
 	{
-		char buf[10];
+		char buf[100];
 		if (data.empty())
 			return "0";
 		int min_win_time = stat.min_win_time(cur_minute);
@@ -128,7 +128,7 @@ stat_func_count_uniq::~stat_func_count_uniq()
 
 	std::string stat_func_count_uniq::getAll(std::string &data, db_stat &stat, int cur_minute)
 	{
-		char buf[10];
+		char buf[100];
 		if (data.empty())
 			return "";
 		int min_win_time = stat.min_win_time(cur_minute);
